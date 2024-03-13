@@ -1,0 +1,56 @@
+﻿{
+    "version":1,
+    "loglevel":"warn",
+    "printlevel":"info",
+    "server": [
+        {
+            "os": 0,
+            "typeid": 0,
+            "port_name":"COM2",
+            "baud_rate":9600,
+            "data_bits":8,
+            "stop_bits":1,
+            "parity":0,
+            "flow_control":0,
+            "request_paras": [
+                {
+                    "description":"uint32big类型",
+                    "class_name":"Exam1",
+                    "device_name": "exam1",
+                    "address":"01",
+                    "func_code":"03",
+                    "start_address":"0000",
+                    "count_or_data":"0002"
+                },
+                {
+                    "description":"uint16类型",
+                    "class_name":"Exam1",
+                    "device_name": "exam1",
+                    "address":"01",
+                    "func_code":"03",
+                    "start_address":"0002",
+                    "count_or_data":"0001"
+                },
+                {
+                    "description":"doublebig类型",
+                    "class_name":"Exam1",
+                    "device_name": "exam1",
+                    "address":"01",
+                    "func_code":"03",
+                    "start_address":"0004",
+                    "count_or_data":"0004"
+                },
+                {
+                    "description":"floatbig类型",
+                    "class_name":"Exam1",
+                    "device_name": "exam1",
+                    "address":"01",
+                    "func_code":"03",
+                    "start_address":"0008",
+                    "count_or_data":"0002"
+                }
+            ]
+        }
+  ]
+}
+
