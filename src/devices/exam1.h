@@ -2,18 +2,13 @@
 #define EXAM1_H
 
 #include "deviceinter.h"
+#include "QMetaObject"
 class Exam1 : public DeviceInterface
 {
-    Q_OBJECT
 public:
-    Exam1();
-    // DeviceInterface interface
-public:
-    void sendRequest(const ModbusRtuContext &unit) override;
-
+    Q_INVOKABLE Exam1();
 public slots:
-    void onReadyRead(const ModbusRtuContext &c);
-    void onError(QModbusDevice::Error e);
+    std::optional<ModbusModel> onReadyRead(std::shared_ptr<ModbusRtuContext> context) override;
 };
 
 #endif // EXAM1_H

@@ -1,9 +1,41 @@
 #include "utils.h"
 #include "../logger.h"
+#include "qdatetime.h"
+#include <QTimeZone>
+std::map<std::string, Utils::DataType> Utils::dataType = {
+        {"bit", DataType::BIT},
+        {"char", DataType::CHAR},
+        {"uint16", DataType::UINT16},
+        {"int16", DataType::INT16},
+        {"uint32big", DataType::UINT32Big},
+        {"uint32little", DataType::UINT32Little},
+        {"uint32big_s", DataType::UINT32Big_S},
+        {"uint32little_s", DataType::UINT32Little_S},
+        {"int32big", DataType::INT32Big},
+        {"int32little", DataType::INT32Little},
+        {"int32big_s", DataType::INT32Big_S},
+        {"int32little_s", DataType::INT32Little_S},
+        {"uint64big", DataType::UINT64Big},
+        {"uint64little", DataType::UINT64Little},
+        {"uint64big_s", DataType::UINT64Big_S},
+        {"uint64little_s", DataType::UINT64Little_S},
+        {"int64big", DataType::INT64Big},
+        {"int64little", DataType::INT64Little},
+        {"int64big_s", DataType::INT64Big_S},
+        {"int64little_s", DataType::INT64Little_S},
+        {"floatbig", DataType::FLOATBig},
+        {"floatlittle", DataType::FLOATLittle},
+        {"floatbig_s", DataType::FLOATBig_S},
+        {"floatlittle_s", DataType::FLOATLittle_S},
+        {"doublebig", DataType::DOUBLEBig},
+        {"doublelittle", DataType::DOUBLELittle},
+        {"doublebig_s", DataType::DOUBLEBig_S},
+        {"doublelittle_s", DataType::DOUBLELittle_S}
+};
+
 
 Utils::Utils()
 {
-
 }
 
 double Utils::getResult(DataType type,const QList<quint16>& values,int bitOrCharIndex) {
@@ -248,6 +280,7 @@ double Utils::getResult(DataType type,const QList<quint16>& values,int bitOrChar
     }
     break;
     default:
+        Logger::logger->error("Modbus DataType error,result={}",-1);
         break;
     }
     return result;
@@ -259,4 +292,8 @@ int Utils::checkHex(const std::string& input)
     if(input.substr(0,2)=="0x")
         return std::stoi(input,nullptr,16);
     return std::stoi(input);
+}
+
+int Utils::getCurrentTimeStamp()  {
+    return QDateTime::currentSecsSinceEpoch();
 }

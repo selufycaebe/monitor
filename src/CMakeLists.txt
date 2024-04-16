@@ -21,15 +21,17 @@ set(HEADERS
     serialbus/modbusrtu.h serialbus/modbusrtu.cpp
     config/config.h
     logger.h logger.cpp
-    enums.h
+    global.h
     serialbus/modbusrtucontext.h serialbus/modbusrtucontext.cpp
-    devices/deviceinter.h
+    devices/deviceinter.h devices/deviceinter.cpp
     devices/exam1.h devices/exam1.cpp
     devices/utils.h devices/utils.cpp
     config/registerconfig.h
     services/uploadservice.h services/uploadservice.cpp
     services/modbusmodel.h
-)
+    services/replymodel.h
+    serialbus/middleware.h serialbus/middleware.cpp
+    devices/common.cpp devices/common.h)
 #设置link库文件
 set(LIBS
     Qt${QT_VERSION_MAJOR}::Core
@@ -43,7 +45,7 @@ set(LIBS
 add_executable(monitor
     main.cpp
     ${HEADERS}
-)
+        config/deviceparams.h services/modbusuploadmodel.h)
 
 target_link_libraries (monitor
     PUBLIC
@@ -58,6 +60,7 @@ target_link_libraries(monitorlib
 )
 #------------------------------------------------------------------------
 configure_file(../config/config.json ${CMAKE_CURRENT_BINARY_DIR}/config/config.json COPYONLY)
+configure_file(../config/deviceparams.json ${CMAKE_CURRENT_BINARY_DIR}/config/deviceparams.json COPYONLY)
 
 include(GNUInstallDirs)
 install(TARGETS monitor

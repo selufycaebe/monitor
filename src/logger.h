@@ -1,4 +1,4 @@
-#ifndef LOGGER_H
+﻿#ifndef LOGGER_H
 #define LOGGER_H
 
 #include <spdlog/spdlog.h>
@@ -8,6 +8,7 @@ class Logger
 public:
     Logger()=default;
     static void init();
+
     inline static std::shared_ptr<spdlog::logger> logger;
 };
 

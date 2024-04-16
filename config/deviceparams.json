@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "params": [
+    {
+      "portname": "COM2",
+      "protocol": "modbus",
+      "device_name": "exam1",
+      "address": 1,
+      "params": {
+        "2": "湿度",
+        "4": "其他",
+        "8": "其他1"
+      }
+    },
+    {
+      "portname": "COM2",
+      "protocol": "modbus",
+      "device_name": "common",
+      "address": 2,
+      "params": {
+        "0": "temperature",
+        "2": "humidity"
+      }
+    }
+  ]
+}

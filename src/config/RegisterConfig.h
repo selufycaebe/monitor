@@ -3,10 +3,12 @@
 
 #include <QMetaType>
 
-#include "../devices/exam1.h"
-namespace Cfg {
+#include "devices/exam1.h"
+#include "devices/common.h"
+namespace cfg {
 inline void ClassRegisterInit() {
     qRegisterMetaType<Exam1>();
+    qRegisterMetaType<Common>();
     //...
 }
 }

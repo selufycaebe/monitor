@@ -3,15 +3,8 @@
 
 #include <QNetworkAccessManager>
 #include "modbusmodel.h"
-class UploadService
-{
-public:
-    UploadService();
-    void uploadNetwork1(const ModbusModel &model);
-private:
-    QNetworkAccessManager m_manager;
-};
 
+class UploadService;
 class UploadServiceInstance{
 public:
     UploadServiceInstance()=default;
@@ -19,4 +12,19 @@ public:
 private:
     inline static UploadService *m_service=nullptr;
 };
+
+
+
+class UploadService
+{
+public:
+    UploadService();
+    void serialUploadNetwork(const ModbusModel& model);
+
+private:
+    QNetworkAccessManager m_manager;
+};
+
+
+
 #endif // UPLOADSERVICE_H

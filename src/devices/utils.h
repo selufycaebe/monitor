@@ -19,6 +19,10 @@ public:
         INT32Little,
         INT32Big_S,
         INT32Little_S,
+        FLOATBig,
+        FLOATLittle,
+        FLOATBig_S,
+        FLOATLittle_S,
         UINT64Big,
         UINT64Little,
         UINT64Big_S,
@@ -27,10 +31,6 @@ public:
         INT64Little,
         INT64Big_S,
         INT64Little_S,
-        FLOATBig,
-        FLOATLittle,
-        FLOATBig_S,
-        FLOATLittle_S,
         DOUBLEBig,
         DOUBLELittle,
         DOUBLEBig_S,
@@ -39,6 +39,8 @@ public:
     Utils();
     static double getResult(DataType type,const QList<quint16>& values,int bitOrCharIndex = 0);
     static int checkHex(const std::string& input);
+    static int getCurrentTimeStamp() ;
+    static std::map<std::string ,DataType> dataType;
 };
 
 #endif // UTILS_H
