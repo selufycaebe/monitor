@@ -28,6 +28,7 @@ public:
     int64_t stopbits;
     int64_t parity;
     int64_t flowControl;
+    bool isOnline = false;
     cfg::RequestPara requestParam; //需要获取原始数据的时候可以从当前变量中取
     std::shared_ptr<QModbusRtuSerialClient> client; //当前设置所对应的串口指针
     QModbusRequest request;//由requestParam计算

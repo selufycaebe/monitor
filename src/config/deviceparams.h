@@ -149,7 +149,4 @@ static DeviceParam readDeviceParams(){
 }
 }
 
-
-
-
 #endif //MONITOR_DEVICEPARAMS_H

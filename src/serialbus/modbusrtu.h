@@ -18,8 +18,8 @@ class ModbusRtuManager
     using HandlerPtr = std::function<void(std::shared_ptr<ModbusRtuContext>)>;
 public:
     struct DeviceInfo {
-        int size{};
-        DeviceInterface *device{};
+        int size;
+        std::shared_ptr<DeviceInterface> device;
         QMap<int,std::string> names;
     };
 
@@ -30,6 +30,7 @@ public:
     };
 public:
     ModbusRtuManager();
+    virtual  ~ModbusRtuManager() =default;
     Q_DISABLE_COPY(ModbusRtuManager);
     void init();
 
@@ -37,13 +38,16 @@ public:
     void addEndHandler(const std::string&name, HandlerPtr f);
     void addGlobalPreHandler(HandlerPtr f);
     void addGlobalEndHandler(HandlerPtr f);
+    void addErrorHandler(HandlerPtr f);
     void setSizeAndName(const std::string& portName,int address,int size,const QMap<int,std::string>& names);
+    void broadcast() const;
 private:
     void setModbusParams(const cfg::Server &s);
     void startRequest(const cfg::Server& s);
 private:
     QList<HandlerPtr> m_globalPreHandlers;
     QList<HandlerPtr> m_globalEndHandlers;
+    QList<HandlerPtr> m_errorHandlers;
     QMap<std::string,QList<HandlerPtr>> m_preHandlers;
     QMap<std::string,QList<HandlerPtr>> m_endHandlers;
     //一个端口对应 一个设备地址/设备类的 map, 一个设备地址需要包含多个寄存器地址的请求

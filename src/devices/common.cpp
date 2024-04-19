@@ -59,8 +59,13 @@ std::optional<ModbusModel> Common::onReadyRead(std::shared_ptr<ModbusRtuContext>
             m_results[startAddress + i] = result; // 0+0=0  0+1=1 ...
             i+=4;
         }
-
     }
+    //打印
+    logger->info("{}_{}",context->portName,context->requestParam.getAddress());
+    for(const auto & s:m_results) {
+        logger->info("startAddress:{},value:{}",s.first,s.second);
+    }
+
     reply->deleteLater();
     if (m_results.size() != m_size) return std::nullopt;
     //需要上传的数据

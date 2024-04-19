@@ -27,14 +27,14 @@ void Logger::init()
         // log.1.txt -> log.2.txt
         // log.2.txt -> log.3.txt
         // log.3.txt -> delete
-        auto file_sink = std::make_shared<spdlog::sinks::rotating_file_sink_mt>(
+        auto file_sink = std::make_shared<spdlog::sinks::rotating_file_sink_st>(
             "logs/my_log.txt",
             1024*1024 *1,  //1m
             10);  //10个文件夹
         //设置等级 高于就会打印
         file_sink->set_level(levelMatchs[config.getLogLevel()]);
         // 设置输出到标准输出的logger 带有颜色的多线程sink
-        auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+        auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_st>();
         console_sink->set_level(levelMatchs[config.getPrintLevel()]);
 
         //高于file_sink的等级就会记录,高于console_sink就会打印(如warn 不仅会打印还会记录)

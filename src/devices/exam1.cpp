@@ -83,9 +83,10 @@ std::optional<ModbusModel> Exam1::onReadyRead(std::shared_ptr<ModbusRtuContext> 
 
     //从机地址: 01-0002:145.5
     //logger->info("address-startAddress:result:: "+context->requestParam.getAddress()+"-"+context->requestParam.getStartAddress()+":"+std::to_string(result));
-    logger->info("deviceAddress:{}",context->requestParam.getAddress());
-    for(const auto & i:m_results) {
-        logger->info("startAddress:{} , value:{}",i.first,i.second);
+    //打印
+    logger->info("{}_{}",context->portName,context->requestParam.getAddress());
+    for(const auto & s:m_results) {
+        logger->info("startAddress:{},value:{}",s.first,s.second);
     }
     ModbusModel model;
     model.setDeviceName(context->requestParam.getDeviceName());

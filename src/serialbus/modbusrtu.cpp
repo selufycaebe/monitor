@@ -69,6 +69,10 @@ void ModbusRtuManager::addEndHandler(const std::string &name, HandlerPtr f) {
     m_endHandlers[name].append(f);
 }
 
+void ModbusRtuManager::addErrorHandler(ModbusRtuManager::HandlerPtr f) {
+    if(f == nullptr) return;
+    m_errorHandlers.append(f);
+}
 
 void ModbusRtuManager::startRequest(const cfg::Server &s) {
     auto timer = std::make_shared<QTimer>();
@@ -81,7 +85,6 @@ void ModbusRtuManager::startRequest(const cfg::Server &s) {
             std::string className = d.getClassName();
             if (className.empty()) continue;
             //FIXME: 只有创建 没有delete,内存泄漏!
-            // - 一次请求创建一个类,如何处理需要多个结果才能计算的值
             // - 先global 在个人
             // ok
             int address = Utils::checkHex(d.getAddress()); //请求设备的地址1-255
@@ -91,7 +94,9 @@ void ModbusRtuManager::startRequest(const cfg::Server &s) {
                 // 使用工厂模式呢?
                 DeviceInterface *device = static_cast<DeviceInterface *>(QMetaType::fromName(
                         className).create()); // 反射返回需要的实例
-                m_modbusRtus[s.getPortName()].deviceInfo[address].device = device;
+                std::shared_ptr<DeviceInterface> sptr;
+                sptr.reset(device);
+                m_modbusRtus[s.getPortName()].deviceInfo[address].device = sptr;
                 int size = m_modbusRtus.value(s.getPortName()).deviceInfo.value(address).size;
                 device->setSize(size);
                 //获取地址对应的命名
@@ -102,6 +107,8 @@ void ModbusRtuManager::startRequest(const cfg::Server &s) {
                 //FIXME 下面捕获的槽函数 可以有点问题
                 // - 第一次请求的时候这个槽函数还没连接
                 // - OK
+
+                //中间件
                 if (!m_preHandlers.value(context->requestParam.getDeviceName()).empty()) {
                     auto list = m_preHandlers.value(context->requestParam.getDeviceName());
                     QObject::connect(deviceInter, &DeviceInterface::startProcessingData,
@@ -116,9 +123,7 @@ void ModbusRtuManager::startRequest(const cfg::Server &s) {
                     auto list = m_endHandlers.value(context->requestParam.getDeviceName());
                     QObject::connect(deviceInter, &DeviceInterface::endProcessingData,
                                      [list](std::shared_ptr<ModbusRtuContext> context) {
-                                         for (int var = 0; var < list.size(); ++var) {
-                                             list.at(var)(context); //调用函数 void(*)(std::shared_ptr<ModbusRtuContext>);
-                                         }
+
                                      });
                 }
                 //适用于所有的设备数据处理开始阶段
@@ -137,6 +142,12 @@ void ModbusRtuManager::startRequest(const cfg::Server &s) {
                                          list.at(var)(context); //调用函数 void(*)(std::shared_ptr<ModbusRtuContext>);
                                      }
                                  });
+                QObject::connect(deviceInter, &DeviceInterface::handleError,
+                                 [&list = m_errorHandlers](std::shared_ptr<ModbusRtuContext> context) {
+                                     for (int var = 0; var < list.size(); ++var) {
+                                         list.at(var)(context); //调用函数 void(*)(std::shared_ptr<ModbusRtuContext>);
+                                     }
+                                 });
 
                 //----中间件end
 
@@ -148,7 +159,7 @@ void ModbusRtuManager::startRequest(const cfg::Server &s) {
                     instance->serialUploadNetwork(model);
                 });
             } else {
-                deviceInter = m_modbusRtus.value(s.getPortName()).deviceInfo.value(address).device;
+                deviceInter = m_modbusRtus.value(s.getPortName()).deviceInfo.value(address).device.get();
             }
             //发送数据
             deviceInter->sendRequest(context);
@@ -210,5 +221,11 @@ void ModbusRtuManager::setSizeAndName(const std::string& portName,int address,in
     m_modbusRtus[portName].deviceInfo[address].size =size;
     m_modbusRtus[portName].deviceInfo[address].names = names;
 }
+
+void ModbusRtuManager::broadcast() const {
+
+}
+
+
 
 

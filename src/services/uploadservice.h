@@ -4,6 +4,7 @@
 #include <QNetworkAccessManager>
 #include "modbusmodel.h"
 
+//单例
 class UploadService;
 class UploadServiceInstance{
 public:
@@ -19,8 +20,8 @@ class UploadService
 {
 public:
     UploadService();
+    Q_DISABLE_COPY(UploadService)
     void serialUploadNetwork(const ModbusModel& model);
-
 private:
     QNetworkAccessManager m_manager;
 };

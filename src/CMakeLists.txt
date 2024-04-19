@@ -45,11 +45,25 @@ set(LIBS
 add_executable(monitor
     main.cpp
     ${HEADERS}
-        config/deviceparams.h services/modbusuploadmodel.h)
+    config/deviceparams.h services/modbusuploadmodel.h)
+
+target_compile_definitions(monitor PRIVATE
+        $<$<CONFIG:Debug>:DEBUG_MODE>
+)
 
 target_link_libraries (monitor
-    PUBLIC
-    ${LIBS}
+        PUBLIC
+        ${LIBS}
+)
+
+#测试使用 检查内存泄漏
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    target_link_libraries (monitor PUBLIC D:/C++code_from_github/vld/lib/Win64/vld.lib)
+    target_include_directories(monitor PUBLIC D:/C++code_from_github/vld/include)
+endif()
+
+target_include_directories(monitor
+        PUBLIC
 )
 #------------------------------------------------------------------------
 #测试库

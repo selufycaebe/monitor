@@ -13,7 +13,9 @@
 #include "uploadservice.h"
 #include "modbusuploadmodel.h"
 
-UploadService::UploadService() {}
+UploadService::UploadService() {
+    m_manager.setAutoDeleteReplies(true);
+}
 
 UploadService *UploadServiceInstance::getInstance() {
     if (m_service == nullptr) {
@@ -29,7 +31,7 @@ void UploadService::serialUploadNetwork(const ModbusModel &model) {
     QUrl url{"http://192.168.31.128:15555"};
     request.setUrl(url);
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-    m_manager.setAutoDeleteReplies(true);
+
     /**
      *  device_name:"exam1",
      *  id_name:"温度",
@@ -60,10 +62,12 @@ error.what:{})", e.what());
 
     QObject::connect(reply, &QNetworkReply::finished, reply, [reply, deviceName]() {
         if (reply->error() != QNetworkReply::NoError) {
+            reply->deleteLater();
             return;
         }
         auto m = reply->readAll();
         if (m.isEmpty()) {
+            reply->deleteLater();
             qDebug() << "empty reply";
             return;
         }
@@ -77,7 +81,7 @@ error.what:{})", e.what());
         } catch (nlohmann::json::exception &e) {
             Logger::logger->info("json parse error:{}", e.what());
         }
-        if (replyModel.getCode() == 200) {
+        if (replyModel.getCode()== 200) {
             Logger::logger->info("{} upload successfully", deviceName);
         } else {
             Logger::logger->error("{} upload fail:{}", deviceName, replyModel.getMessage());
