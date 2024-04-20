@@ -31,14 +31,15 @@ void DeviceInterface::sendRequest(std::shared_ptr<ModbusRtuContext> context) {
         onError(context, e);
     }, Qt::SingleShotConnection);
     QObject::connect(reply, &QModbusReply::finished, this, [context, this]() {
+        QModbusReply *reply = qobject_cast<QModbusReply *>(sender());
         emit startProcessingData(context);
         auto md = onReadyRead(context);
         if (!md.has_value()) return;
         context->isOnline = true;
         emit endProcessingData(context);
         ModbusModel m = md.value();
-        //setNameOfAddress(m);
         emit upload(m);
+        reply->deleteLater();
     }, Qt::SingleShotConnection);
 }
 

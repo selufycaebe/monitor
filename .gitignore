@@ -1,4 +1,4 @@
-# This file is used to ignore files which are generated
+﻿# This file is used to ignore files which are generated
 # ----------------------------------------------------------------------------
 
 *~
@@ -59,6 +59,8 @@ CMakeLists.txt.user*
 *.opensdf
 *.vcxproj
 *vcxproj.*
+*.idea
+*cmake-build-debug-visual-studio
 
 # MinGW generated files
 *.Debug

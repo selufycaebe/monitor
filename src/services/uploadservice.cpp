@@ -14,6 +14,7 @@
 #include "modbusuploadmodel.h"
 
 UploadService::UploadService() {
+    //这个好像并不起作用,内存还是会一直增加 需要手动进行delete reply指针
     m_manager.setAutoDeleteReplies(true);
 }
 
