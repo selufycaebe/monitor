@@ -60,6 +60,10 @@ std::optional<ModbusModel> Common::onReadyRead(std::shared_ptr<ModbusRtuContext>
             i+=4;
         }
     }
+    if(m_size==-1) {
+        logger->error("deviceAddress:{} size dont set",context->requestParam.getAddress());
+        return std::nullopt;
+    }
     //打印
     logger->info("{}_{}",context->portName,context->requestParam.getAddress());
     for(const auto & s:m_results) {

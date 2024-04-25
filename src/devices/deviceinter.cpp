@@ -12,7 +12,6 @@ DeviceInterface::DeviceInterface(const std::string &name)
         : deviceName{name} {}
 
 void DeviceInterface::sendRequest(std::shared_ptr<ModbusRtuContext> context) {
-
     auto logger = Logger::logger;
     //发送请求 处理回复
     auto client = context->client;

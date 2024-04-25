@@ -1,5 +1,5 @@
 ﻿#include <iostream>
-#include "config/RegisterConfig.h"
+#include "config/registerconfig.h"
 #include "config/config.h"
 #include "config/deviceparams.h"
 #include "devices/utils.h"
@@ -13,7 +13,7 @@
 #include <signal.h>
 
 #ifdef DEBUG_MODE
-//#include <vld.h>
+#include <vld.h>
 #endif
 
 // 信号处理函数
@@ -47,7 +47,7 @@ int main(int argc, char *argv[]) {
         if (deviceParam.getVersion() == 1) {
             auto params = deviceParam.getParams();
             //把各地址对应的值的含义读取出来,用于上传的时候进行标注
-            for (int i = 0; i < params.size(); i++) {
+            for (size_t i = 0; i < params.size(); i++) {
                 QMap<int, std::string> t; // <地址,代表的含义>
                 if (params[i].getProtocol()=="modbus") {
                     auto param = params[i];

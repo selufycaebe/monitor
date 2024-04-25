@@ -3,8 +3,8 @@
 
 #include <QMetaType>
 
-#include "devices/exam1.h"
-#include "devices/common.h"
+#include "../devices/exam1.h"
+#include "../devices/common.h"
 namespace cfg {
 inline void ClassRegisterInit() {
     qRegisterMetaType<Exam1>();

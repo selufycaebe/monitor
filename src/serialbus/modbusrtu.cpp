@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <memory>
+#include <qvariant.h>
 #include <stdexcept>
 #include "modbusrtucontext.h"
 #include "../devices/deviceinter.h"
@@ -35,7 +36,9 @@ void ModbusRtuManager::init() {
 #ifdef Q_OS_LINUX
             if(s.getOs()!=Os::Linux) continue;
             //FIXME: 支持linux系统
-            Logger::logger->error("功能还没有实现");
+            //Logger::logger->error("功能还没有实现");
+            setModbusParams(s);
+            startRequest(s);
 #endif
         }
         catch (std::runtime_error &e) {
@@ -101,6 +104,7 @@ void ModbusRtuManager::startRequest(const cfg::Server &s) {
                 device->setSize(size);
                 //获取地址对应的命名
                 auto f = m_modbusRtus.value(s.getPortName()).deviceInfo.value(address).names;
+                if(f.isEmpty()) continue;
                 device->setNameOfAddress(f);
                 deviceInter = device;
                 // 中间件
@@ -123,7 +127,9 @@ void ModbusRtuManager::startRequest(const cfg::Server &s) {
                     auto list = m_endHandlers.value(context->requestParam.getDeviceName());
                     QObject::connect(deviceInter, &DeviceInterface::endProcessingData,
                                      [list](std::shared_ptr<ModbusRtuContext> context) {
-
+                                         for (int var = 0; var < list.size(); ++var) {
+                                             list.at(var)(context); //调用函数 void(*)(std::shared_ptr<ModbusRtuContext>);
+                                         }
                                      });
                 }
                 //适用于所有的设备数据处理开始阶段
@@ -142,6 +148,7 @@ void ModbusRtuManager::startRequest(const cfg::Server &s) {
                                          list.at(var)(context); //调用函数 void(*)(std::shared_ptr<ModbusRtuContext>);
                                      }
                                  });
+                //错误的处理
                 QObject::connect(deviceInter, &DeviceInterface::handleError,
                                  [&list = m_errorHandlers](std::shared_ptr<ModbusRtuContext> context) {
                                      for (int var = 0; var < list.size(); ++var) {
@@ -176,28 +183,28 @@ void ModbusRtuManager::setModbusParams(const cfg::Server &s) {
     client->setConnectionParameter(QModbusDevice::SerialPortNameParameter, QString::fromStdString(s.getPortName()));
     QList<int> options = {1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200}; //具体对应关系查看 QSerialPort::BaudRate
     if (options.contains(s.getBaudRate())) {
-        client->setConnectionParameter(QModbusDevice::SerialBaudRateParameter, s.getBaudRate());
+        client->setConnectionParameter(QModbusDevice::SerialBaudRateParameter, QVariant::fromValue(s.getBaudRate()));
     } else {
         //log->warn(s.getPortName()+"serialbus baudrate参数设置错误");
         throw std::runtime_error("serialbus baudrate参数设置错误");
     }
     options = {5, 6, 7, 8}; //具体对应关系查看 QSerialPort::DataBits
     if (options.contains(s.getDataBits())) {
-        client->setConnectionParameter(QModbusDevice::SerialDataBitsParameter, s.getDataBits());
+        client->setConnectionParameter(QModbusDevice::SerialDataBitsParameter, QVariant::fromValue(s.getDataBits()));
     } else {
         //log->warn(s.getPortName()+"serialbus databits参数设置错误");
         throw std::runtime_error("serialbus databits参数设置错误");
     }
     options = {1, 3, 2}; //具体对应关系查看 QSerialPort::StopBits 文档
     if (options.contains(s.getStopBits())) {
-        client->setConnectionParameter(QModbusDevice::SerialStopBitsParameter, s.getStopBits());
+        client->setConnectionParameter(QModbusDevice::SerialStopBitsParameter, QVariant::fromValue(s.getStopBits()));
     } else {
         //log->warn(s.getPortName()+"serialbus stopbits参数设置错误");
         throw std::runtime_error("serialbus stopbits参数设置错误");
     }
     options = {0, 2, 3, 4, 5}; //QSerialPort::Parity
     if (options.contains(s.getParity())) {
-        client->setConnectionParameter(QModbusDevice::SerialParityParameter, s.getParity());
+        client->setConnectionParameter(QModbusDevice::SerialParityParameter, QVariant::fromValue(s.getParity()));
     } else {
         //log->warn(s.getPortName()+"serialbus parity参数设置错误");
         throw std::runtime_error("serialbus parity参数设置错误");

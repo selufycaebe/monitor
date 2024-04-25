@@ -108,6 +108,29 @@
                     "count_or_data":"0002"
                 }
             ]
+        },
+        {
+            "os": 1,
+            "typeid": 0,
+            "port_name":"/dev/pts/2",
+            "baud_rate":9600,
+            "data_bits":8,
+            "stop_bits":1,
+            "parity":0,
+            "flow_control":0,
+            "interval_ms":5000,
+            "request_paras": [
+                {
+                    "description":"device_name是上传时设置的名称",
+                    "data_type": "uint32big",
+                    "class_name":"Common",
+                    "device_name": "exam2",
+                    "address":"02",
+                    "func_code":"03",
+                    "start_address":"0000",
+                    "count_or_data":"0004"
+                }
+            ]
         }
   ]
 }

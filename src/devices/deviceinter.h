@@ -43,7 +43,6 @@ signals:
 public:
     std::string deviceName;
 protected:
-
     int m_size = -1;
     QMap<int, std::string> m_NameOfAddress;
     //01 03 00 00(寄存器的起始地址) 00 01 xx xx
