@@ -47,6 +47,7 @@ void DeviceInterface::sendRequest(QSharedPointer<ModbusRtuContext> context) {
                     if (!reply) return;
                     emit startProcessingData(context);
                     auto md = onReadyRead(context);
+                    reply->deleteLater();
                     if (!md.has_value()) return;
                     context->isOnline = true;
                     emit endProcessingData(context);
@@ -55,7 +56,7 @@ void DeviceInterface::sendRequest(QSharedPointer<ModbusRtuContext> context) {
 #if (QT_VERSION <= QT_VERSION_CHECK(6,2,0))
                     client->disconnect(SIGNAL(timeoutChanged(int)),0,0);
 #endif
-                },Qt::SingleShotConnection);
+                });
     } else {
         delete reply;
         reply = nullptr;
