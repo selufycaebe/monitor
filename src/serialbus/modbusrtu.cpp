@@ -29,6 +29,7 @@ void ModbusRtuManager::init() {
             if (s.getServerTypeid() != IOType::ModbusRtu) continue;
 #ifdef Q_OS_WIN
             if (s.getOs() != Os::Window) continue;
+
             setModbusParams(s);
             startRequest(s);
 #endif
@@ -78,13 +79,13 @@ void ModbusRtuManager::addErrorHandler(ModbusRtuManager::HandlerPtr f) {
 }
 
 void ModbusRtuManager::startRequest(const cfg::Server &s) {
-    auto timer = std::make_shared<QTimer>();
+    auto timer = QSharedPointer<QTimer>::create();
     timer->setInterval(s.getIntervalMs());
     QObject::connect(timer.get(), &QTimer::timeout, timer.get(), [this,s]() {
         for (const auto &d: s.getRequestParas()) {
             //ModbusRtuContext context{s,d,m_modbusRtus.value(s.getPortName())};
             auto rtu = m_modbusRtus.value(s.getPortName()).modbusRtu;
-            auto context = std::make_shared<ModbusRtuContext>(s, d, rtu);
+            auto context = QSharedPointer<ModbusRtuContext>::create(s,d,rtu); //std::make_shared<ModbusRtuContext>(s, d, rtu);
             std::string className = d.getClassName();
             if (className.empty()) continue;
             //FIXME: 只有创建 没有delete,内存泄漏!
@@ -97,7 +98,7 @@ void ModbusRtuManager::startRequest(const cfg::Server &s) {
                 // 使用工厂模式呢?
                 DeviceInterface *device = static_cast<DeviceInterface *>(QMetaType::fromName(
                         className).create()); // 反射返回需要的实例
-                std::shared_ptr<DeviceInterface> sptr;
+                QSharedPointer<DeviceInterface> sptr;
                 sptr.reset(device);
                 m_modbusRtus[s.getPortName()].deviceInfo[address].device = sptr;
                 int size = m_modbusRtus.value(s.getPortName()).deviceInfo.value(address).size;
@@ -116,7 +117,7 @@ void ModbusRtuManager::startRequest(const cfg::Server &s) {
                 if (!m_preHandlers.value(context->requestParam.getDeviceName()).empty()) {
                     auto list = m_preHandlers.value(context->requestParam.getDeviceName());
                     QObject::connect(deviceInter, &DeviceInterface::startProcessingData,
-                                     [list](std::shared_ptr<ModbusRtuContext> context) {
+                                     [list](QSharedPointer<ModbusRtuContext> context) {
                                          for (int var = 0; var < list.size(); ++var) {
                                              list.at(var)(context); //调用函数 void(*)(std::shared_ptr<ModbusRtuContext>);
                                          }
@@ -126,7 +127,7 @@ void ModbusRtuManager::startRequest(const cfg::Server &s) {
                 if (!m_endHandlers.value(context->requestParam.getDeviceName()).empty()) {
                     auto list = m_endHandlers.value(context->requestParam.getDeviceName());
                     QObject::connect(deviceInter, &DeviceInterface::endProcessingData,
-                                     [list](std::shared_ptr<ModbusRtuContext> context) {
+                                     [list](QSharedPointer<ModbusRtuContext> context) {
                                          for (int var = 0; var < list.size(); ++var) {
                                              list.at(var)(context); //调用函数 void(*)(std::shared_ptr<ModbusRtuContext>);
                                          }
@@ -134,7 +135,7 @@ void ModbusRtuManager::startRequest(const cfg::Server &s) {
                 }
                 //适用于所有的设备数据处理开始阶段
                 QObject::connect(deviceInter, &DeviceInterface::startProcessingData,
-                                 [&list = m_globalPreHandlers](std::shared_ptr<ModbusRtuContext> context) {
+                                 [&list = m_globalPreHandlers](QSharedPointer<ModbusRtuContext> context) {
                                      //std::cout<<context.get()->requestParam.getStartAddress()<<std::endl;
                                      for (int var = 0; var < list.size(); ++var) {
                                          list.at(var)(context); //调用函数 void(*)(std::shared_ptr<ModbusRtuContext>);
@@ -143,14 +144,14 @@ void ModbusRtuManager::startRequest(const cfg::Server &s) {
 
                 //适用于所有的设备数据处理结束阶段
                 QObject::connect(deviceInter, &DeviceInterface::endProcessingData,
-                                 [&list = m_globalEndHandlers](std::shared_ptr<ModbusRtuContext> context) {
+                                 [&list = m_globalEndHandlers](QSharedPointer<ModbusRtuContext> context) {
                                      for (int var = 0; var < list.size(); ++var) {
                                          list.at(var)(context); //调用函数 void(*)(std::shared_ptr<ModbusRtuContext>);
                                      }
                                  });
                 //错误的处理
                 QObject::connect(deviceInter, &DeviceInterface::handleError,
-                                 [&list = m_errorHandlers](std::shared_ptr<ModbusRtuContext> context) {
+                                 [&list = m_errorHandlers](QSharedPointer<ModbusRtuContext> context) {
                                      for (int var = 0; var < list.size(); ++var) {
                                          list.at(var)(context); //调用函数 void(*)(std::shared_ptr<ModbusRtuContext>);
                                      }
@@ -178,6 +179,7 @@ void ModbusRtuManager::startRequest(const cfg::Server &s) {
 
 void ModbusRtuManager::setModbusParams(const cfg::Server &s) {
     if (s.getServerTypeid() != IOType::ModbusRtu) return;
+
     auto log = Logger::logger;
     QModbusRtuSerialClient *client = new QModbusRtuSerialClient();
     client->setConnectionParameter(QModbusDevice::SerialPortNameParameter, QString::fromStdString(s.getPortName()));
@@ -185,41 +187,42 @@ void ModbusRtuManager::setModbusParams(const cfg::Server &s) {
     if (options.contains(s.getBaudRate())) {
         client->setConnectionParameter(QModbusDevice::SerialBaudRateParameter, QVariant::fromValue(s.getBaudRate()));
     } else {
-        //log->warn(s.getPortName()+"serialbus baudrate参数设置错误");
+        log->warn(s.getPortName()+"serialbus baudrate参数设置错误");
         throw std::runtime_error("serialbus baudrate参数设置错误");
     }
     options = {5, 6, 7, 8}; //具体对应关系查看 QSerialPort::DataBits
     if (options.contains(s.getDataBits())) {
         client->setConnectionParameter(QModbusDevice::SerialDataBitsParameter, QVariant::fromValue(s.getDataBits()));
     } else {
-        //log->warn(s.getPortName()+"serialbus databits参数设置错误");
+        log->warn(s.getPortName()+"serialbus databits参数设置错误");
         throw std::runtime_error("serialbus databits参数设置错误");
     }
     options = {1, 3, 2}; //具体对应关系查看 QSerialPort::StopBits 文档
     if (options.contains(s.getStopBits())) {
         client->setConnectionParameter(QModbusDevice::SerialStopBitsParameter, QVariant::fromValue(s.getStopBits()));
     } else {
-        //log->warn(s.getPortName()+"serialbus stopbits参数设置错误");
+        log->warn(s.getPortName()+"serialbus stopbits参数设置错误");
         throw std::runtime_error("serialbus stopbits参数设置错误");
     }
     options = {0, 2, 3, 4, 5}; //QSerialPort::Parity
     if (options.contains(s.getParity())) {
         client->setConnectionParameter(QModbusDevice::SerialParityParameter, QVariant::fromValue(s.getParity()));
     } else {
-        //log->warn(s.getPortName()+"serialbus parity参数设置错误");
+        log->warn(s.getPortName()+"serialbus parity参数设置错误");
         throw std::runtime_error("serialbus parity参数设置错误");
     }
     auto isOpen = client->connectDevice();
     if (!isOpen) {
-        //log->warn(s.getPortname()+"串口打开失败");
+        log->warn("{}串口打开失败",s.getPortName());
         throw std::runtime_error(s.getPortName() + "串口打开失败");
     }
-
+    //1秒超时
+    client->setTimeout(1000);
+    client->setNumberOfRetries(3);
     //添加所有初始化的实例指针
-    std::shared_ptr<QModbusRtuSerialClient> c;
-    c.reset(client);
+    QSharedPointer<QModbusRtuSerialClient> c{client};
     //m_modbusRtus[s.getPortName()] = c;
-    m_modbusRtus[s.getPortName()].modbusRtu =c;
+    m_modbusRtus[s.getPortName()].modbusRtu = c;
 }
 
 void ModbusRtuManager::setSizeAndName(const std::string& portName,int address,int size,const QMap<int,std::string>& names){
@@ -232,7 +235,3 @@ void ModbusRtuManager::setSizeAndName(const std::string& portName,int address,in
 void ModbusRtuManager::broadcast() const {
 
 }
-
-
-
-

@@ -6,7 +6,7 @@
 #include "../devices/utils.h"
 
 ModbusRtuContext::ModbusRtuContext(const cfg::Server &s, const cfg::RequestPara &p,
-                                   std::shared_ptr<QModbusRtuSerialClient> client) {
+                                   QSharedPointer<QModbusRtuSerialClient> client) {
     os = s.getOs();
     serverTypeId = s.getServerTypeid();
     portName = s.getPortName();

@@ -30,7 +30,7 @@ Exam1::Exam1() :DeviceInterface("Exam1")
 //     },Qt::SingleShotConnection);
 // }
 
-std::optional<ModbusModel> Exam1::onReadyRead(std::shared_ptr<ModbusRtuContext> context)
+std::optional<ModbusModel> Exam1::onReadyRead(QSharedPointer<ModbusRtuContext> context)
 {
     auto logger = Logger::logger;
     QModbusReply *reply=qobject_cast<QModbusReply *>(sender());
@@ -38,6 +38,8 @@ std::optional<ModbusModel> Exam1::onReadyRead(std::shared_ptr<ModbusRtuContext> 
     auto unit = reply->result();
     if(reply->error()!= QModbusDevice::NoError) {
         logger->error( reply->errorString().toStdString());
+        delete reply;
+        reply = nullptr;
         return std::nullopt;
     }
     auto results = reply->result().values();

@@ -12,14 +12,14 @@
             "stop_bits":1,
             "parity":0,
             "flow_control":0,
-            "interval_ms":5000,
+            "interval_ms":300,
             "request_paras": [
                 {
                     "description":"device_name是上传时设置的名称",
                     "data_type": "uint32big",
                     "class_name":"Common",
                     "device_name": "exam2",
-                    "address":"02",
+                    "address":"01",
                     "func_code":"03",
                     "start_address":"0000",
                     "count_or_data":"0004"
@@ -38,7 +38,7 @@
                     "description":"doublebig类型",
                     "data_type": "doublebig",
                     "class_name":"Exam1",
-                    "device_name": "exam1",
+                    "device_name": "n1",
                     "address":"01",
                     "func_code":"03",
                     "start_address":"0004",
@@ -48,7 +48,7 @@
                     "description":"floatbig类型",
                     "data_type": "floatbig",
                     "class_name":"Exam1",
-                    "device_name": "exam1",
+                    "device_name": "x3",
                     "address":"01",
                     "func_code":"03",
                     "start_address":"0008",
@@ -57,7 +57,7 @@
             ]
         },
         {
-            "os": 0,
+            "os": 1,
             "typeid": 0,
             "port_name":"COM4",
             "baud_rate":9600,

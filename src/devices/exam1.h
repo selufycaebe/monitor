@@ -8,7 +8,7 @@ class Exam1 : public DeviceInterface
 public:
     Q_INVOKABLE Exam1();
 public slots:
-    std::optional<ModbusModel> onReadyRead(std::shared_ptr<ModbusRtuContext> context) override;
+    std::optional<ModbusModel> onReadyRead(QSharedPointer<ModbusRtuContext> context) override;
 };
 
 #endif // EXAM1_H

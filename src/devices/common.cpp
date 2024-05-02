@@ -3,11 +3,9 @@
 //
 
 #include "common.h"
-#include <QList>
 #include <QModbusReply>
 #include <QObject>
 #include <optional>
-#include <string>
 #include "qdatetime.h"
 #include "qlist.h"
 #include "utils.h"
@@ -18,13 +16,13 @@ Common::Common() :DeviceInterface("Common") {
 }
 
 // 有符号数16位
-std::optional<ModbusModel> Common::onReadyRead(std::shared_ptr<ModbusRtuContext> context) {
+std::optional<ModbusModel> Common::onReadyRead(QSharedPointer<ModbusRtuContext> context) {
     auto logger = Logger::logger;
     auto *reply = qobject_cast<QModbusReply *>(sender());
     if (!reply) return std::nullopt;
     auto unit = reply->result();
     if (reply->error() != QModbusDevice::NoError) {
-        logger->error(reply->errorString().toStdString());
+        logger->error("{}:{}",context->requestParam.getAddress(),reply->errorString().toStdString());
         return std::nullopt;
     }
     auto values = reply->result().values();
@@ -69,8 +67,6 @@ std::optional<ModbusModel> Common::onReadyRead(std::shared_ptr<ModbusRtuContext>
     for(const auto & s:m_results) {
         logger->info("startAddress:{},value:{}",s.first,s.second);
     }
-
-    reply->deleteLater();
     if (m_results.size() != m_size) return std::nullopt;
     //需要上传的数据
     ModbusModel model;

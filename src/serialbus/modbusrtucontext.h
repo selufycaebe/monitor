@@ -18,7 +18,7 @@ struct Extension {
 
 class ModbusRtuContext {
 public:
-    ModbusRtuContext(const cfg::Server &s, const cfg::RequestPara &p, std::shared_ptr<QModbusRtuSerialClient> client);
+    ModbusRtuContext(const cfg::Server &s, const cfg::RequestPara &p, QSharedPointer<QModbusRtuSerialClient> client);
 
     int64_t os;
     int64_t serverTypeId;
@@ -30,7 +30,7 @@ public:
     int64_t flowControl;
     bool isOnline = false;
     cfg::RequestPara requestParam; //需要获取原始数据的时候可以从当前变量中取
-    std::shared_ptr<QModbusRtuSerialClient> client; //当前设置所对应的串口指针
+    QSharedPointer<QModbusRtuSerialClient> client; //当前设置所对应的串口指针
     QModbusRequest request;//由requestParam计算
     //添加一些自定义的属性
     std::any get(const std::string &keyName) const;

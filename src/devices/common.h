@@ -13,7 +13,7 @@ class Common : public DeviceInterface {
 public:
     explicit Common();
 protected slots:
-    std::optional<ModbusModel>  onReadyRead(std::shared_ptr<ModbusRtuContext> context) override;
+    std::optional<ModbusModel>  onReadyRead(QSharedPointer<ModbusRtuContext> context) override;
 };
 
 

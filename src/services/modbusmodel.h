@@ -11,11 +11,7 @@
 class ModbusModel {
 public:
     ModbusModel() = default;
-
     virtual ~ModbusModel() = default;
-
-private:
-    std::string deviceName;
 public:
     const std::string &getDeviceName() const {
         return deviceName;
@@ -60,6 +56,7 @@ public:
 private:
     //std::string object;
     //double value;
+    std::string deviceName;
     std::map<int, double> values;
     std::map<int,std::string> nameAddress;
     int64_t version;

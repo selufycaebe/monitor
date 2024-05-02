@@ -15,18 +15,18 @@ class ModbusRtuContext;
 
 class ModbusRtuManager
 {
-    using HandlerPtr = std::function<void(std::shared_ptr<ModbusRtuContext>)>;
+    using HandlerPtr = std::function<void(QSharedPointer<ModbusRtuContext>)>;
 public:
     struct DeviceInfo {
         int size;
-        std::shared_ptr<DeviceInterface> device;
+        QSharedPointer<DeviceInterface> device;
         QMap<int,std::string> names;
     };
 
     struct Common{
         QMap<int,DeviceInfo> deviceInfo; //这里的int 是具体设备的地址 1-255
-        std::shared_ptr<QTimer> m_timers;
-        std::shared_ptr<QModbusRtuSerialClient> modbusRtu;
+        QSharedPointer<QTimer> m_timers;
+        QSharedPointer<QModbusRtuSerialClient> modbusRtu;
     };
 public:
     ModbusRtuManager();

@@ -16,6 +16,7 @@
 UploadService::UploadService() {
     //这个好像并不起作用,内存还是会一直增加 需要手动进行delete reply指针
     m_manager.setAutoDeleteReplies(true);
+    m_manager.setTransferTimeout(3000);
 }
 
 UploadService *UploadServiceInstance::getInstance() {
@@ -61,14 +62,14 @@ error.what:{})", e.what());
     auto reply = m_manager.post(request, QByteArray::fromStdString(body));
     std::string deviceName = model.getDeviceName();
 
-    QObject::connect(reply, &QNetworkReply::finished, reply, [reply, deviceName]() {
+    QObject::connect(reply, &QNetworkReply::finished,
+                     reply, [reply, deviceName]() {
+        reply->deleteLater();
         if (reply->error() != QNetworkReply::NoError) {
-            reply->deleteLater();
             return;
         }
         auto m = reply->readAll();
         if (m.isEmpty()) {
-            reply->deleteLater();
             qDebug() << "empty reply";
             return;
         }
@@ -87,10 +88,9 @@ error.what:{})", e.what());
         } else {
             Logger::logger->error("{} upload fail:{}", deviceName, replyModel.getMessage());
         }
-        reply->deleteLater();
     }, Qt::QueuedConnection);
     QObject::connect(reply, &QNetworkReply::errorOccurred, reply, [reply, deviceName](QNetworkReply::NetworkError e) {
-        Logger::logger->error("{}上传服务器超时...!code:{}", deviceName, std::to_string(e));
         reply->deleteLater();
+        Logger::logger->error("{}上传服务器超时...!code:{}", deviceName, std::to_string(e));
     }, Qt::QueuedConnection);
 }
