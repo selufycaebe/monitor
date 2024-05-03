@@ -85,6 +85,7 @@ void ModbusRtuManager::startRequest(const cfg::Server &s) {
         for (const auto &d: s.getRequestParas()) {
             //ModbusRtuContext context{s,d,m_modbusRtus.value(s.getPortName())};
             auto rtu = m_modbusRtus.value(s.getPortName()).modbusRtu;
+            if(rtu.isNull()) setModbusParams(s);
             auto context = QSharedPointer<ModbusRtuContext>::create(s,d,rtu); //std::make_shared<ModbusRtuContext>(s, d, rtu);
             std::string className = d.getClassName();
             if (className.empty()) continue;
@@ -179,7 +180,7 @@ void ModbusRtuManager::startRequest(const cfg::Server &s) {
 
 void ModbusRtuManager::setModbusParams(const cfg::Server &s) {
     if (s.getServerTypeid() != IOType::ModbusRtu) return;
-
+    if(m_modbusRtus[s.getPortName()].modbusRtu) return;
     auto log = Logger::logger;
     QModbusRtuSerialClient *client = new QModbusRtuSerialClient();
     client->setConnectionParameter(QModbusDevice::SerialPortNameParameter, QString::fromStdString(s.getPortName()));
